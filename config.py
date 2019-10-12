@@ -17,53 +17,130 @@ DB_NAME = "douban_group"
 
 # 豆瓣小组URL
 GROUP_LIST = [
-    # 北京租房豆瓣
-    "http://www.douban.com/group/26926/",
-    # 北京租房（非中介）
-    "http://www.douban.com/group/279962/",
-    # 北京租房房东联盟(中介勿扰)
-    "http://www.douban.com/group/257523/",
-    # 北京租房
-    "http://www.douban.com/group/beijingzufang/",
-    # 北京租房小组
-    "http://www.douban.com/group/xiaotanzi/",
-    # 北京无中介租房
-    "http://www.douban.com/group/zhufang/",
-    # 北漂爱合租
-    "http://www.douban.com/group/aihezu/",
-    # 北京同志们来租房
-    "http://www.douban.com/group/325060/",
-    # 北京个人租房
-    "http://www.douban.com/group/opking/",
-    # 北京租房小组!
-    "http://www.douban.com/group/374051/",
+    # 深圳租房团
+    'https://www.douban.com/group/106955/',
+    # 初来咋到（深圳租房）
+    'https://www.douban.com/group/116930/',
+    # 深圳租房
+    'https://www.douban.com/group/551176/',
+    # 深圳南山租房（个人房源免费推广）
+    'https://www.douban.com/group/nanshanzufang/',
+    # 深圳1号罗宝地铁沿线租房
+    'https://www.douban.com/group/luobao1haoxian/',
+    # 深圳租房★（个人房源免费推广）
+    'https://www.douban.com/group/szsh/',
+    # 深圳租房
+    'https://www.douban.com/group/SZhouse/',
+    # 深圳南山租房团
+    'https://www.douban.com/group/498004/',
+    # 深圳租房@南山/宝安租房
+    'https://www.douban.com/group/637638/',
+    # 深圳福田租房（个人房源免费推广）
+    'https://www.douban.com/group/futianzufang/',
+    # 深圳宝安租房（个人房源免费推广）
+    'https://www.douban.com/group/baoanzufang/',
+    # 深圳租房@福田租房
+    'https://www.douban.com/group/637700/',
+    # 深圳5号环中地铁沿线租房
+    'https://www.douban.com/group/huanzhongxian/',
+    # 深圳2号蛇口地铁沿线租房
+    'https://www.douban.com/group/591624/',
+    # 深圳7号地铁沿线租房
+    'https://www.douban.com/group/615403/',
 ]
 
 # 后缀
 GROUP_SUFFIX = "discussion?start=%d"
 
 # 抓取前多少页
-MAX_PAGE = 5
+MAX_PAGE = 7
 
 # 匹配规则
 RULES = {
     # 每个帖子项
     "topic_item": "//table[@class='olt']/tr",
     "url_list": "//table[@class='olt']/tr/td[@class='title']/a/@href",
+
     # 列表元素
     "title": "td[@class='title']/a/@title",
     "author": "td[@nowrap='nowrap'][1]/a/text()",
     "reply": "td[@nowrap='nowrap'][2]/text()",
     "last_reply_time": "td[@class='time']/text()",
     "url": "td[@class='title']/a/@href",
+
     # 帖子详情
     "detail_title_sm": "//td[@class='tablecc']/text()",
+
     # 完整标题
     "detail_title_lg": "//div[@id='content']/h1/text()",
+
     "create_time": "//span[@class='color-green']/text()",
     "detail_author": "//span[@class='from']/a/text()",
-    "content": "//div[@class='topic-content']/p/text()",
+    # "content": "//div[@class='topic-content']/p/text()",
+	"content": "//div[@class='topic-richtext']/p/text()",
 }
+
+INTERMEDIARY_KEYWORDS = [
+    '拎包入住',
+    '精装',
+	'一流',
+    '精装公寓',
+	'豪华',
+    '直租',
+    '无中介费',
+    '免中介费',
+    '图很漂亮',
+    '没什么杂物',
+    '价格比市场价低',
+    '价格私聊',
+    '朝向南',
+    '超高性价比',
+    '多种选择',
+    '多个价位',
+    '真实房源',
+    '实图实价',
+    '弄虚作假',
+    '那么漂亮',
+    '超棒的',
+    '这很棒',
+    '心情愉悦',
+    '微信同步',
+    '家私齐全',
+    '房东直租',
+    '全包',
+    '好房来袭',
+    '低至',
+    '超大',
+    '精装修',
+    '微信同号',
+	'微信同',
+	'微同步',
+    '无.中.介.费',
+    '真房真价',
+    '高档小区',
+    '宽大',
+    '洼地',
+    '配套齐全',
+	'低于市场价',
+	'好房子不等人',
+	'走路上班',
+	'备注一下豆瓣租房',
+	'中介费用！',
+	'一应俱全',
+	'见链接',
+	'原链接',
+	'前定下',
+	'如果不是',
+	'豪宅',
+	'不等人',
+	'拍照技术',
+	'我很喜欢',
+	'我喜欢',
+	'无任何中介费用',
+
+]
+# 豆瓣名称没有改，直接是豆友后面加一串数字的
+# 只有标题，正文不写字的
 
 # 并发数
 POOL_SIZE = 20

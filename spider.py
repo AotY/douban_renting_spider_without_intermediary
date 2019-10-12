@@ -20,7 +20,8 @@ from dbmixin import DBMixin
 
 from config import (
     GROUP_LIST, GROUP_SUFFIX, USER_AGENT,
-    POOL_SIZE, RULES, MAX_PAGE, WATCH_INTERVAL, PROXY_INTERVAL
+    POOL_SIZE, RULES, MAX_PAGE, WATCH_INTERVAL, PROXY_INTERVAL,
+    INTERMEDIARY_KEYWORDS
 )
 from utils import Timer, ProxyManager
 
@@ -93,7 +94,7 @@ class DoubanSpider(DBMixin):
         kwargs = {
             "headers": {
                 "User-Agent": USER_AGENT,
-                "Referer": "http://www.douban.com/"
+                "Referer": "https://www.douban.com/"
             },
         }
         kwargs["timeout"] = timeout
@@ -103,7 +104,10 @@ class DoubanSpider(DBMixin):
                 # 是否启动代理
                 if self.proxy_manager is not None:
                     kwargs["proxies"] = {
-                        "http": self.proxy_manager.get_proxy()}
+                        "https": self.proxy_manager.get_proxy(),
+                        "http": self.proxy_manager.get_proxy()
+                    }
+                    # print('proxies: ', kwargs['proxies'])
                 resp = requests.get(url, **kwargs)
                 if resp.status_code != 200:
                     raise HTTPError(resp.status_code, url)
@@ -120,10 +124,10 @@ class DoubanSpider(DBMixin):
         """解析元素,xpath语法
 
         @regx, str, 解析表达式
-        @body, unicode or element, 网页源码或元素
+        @body, str or element, 网页源码或元素
         @multi, bool, 是否取多个
         """
-        if isinstance(body, unicode):
+        if isinstance(body, str):
             body = etree.HTML(body)
         res = body.xpath(regx)
         if multi:
@@ -187,26 +191,32 @@ class DoubanSpider(DBMixin):
         """
         logger.info("processing page: %s", url)
         html = self.fetch(url)
-        topic_urls = self.extract(
-            self.rules["url_list"], html, multi=True)
+        topic_urls = self.extract(self.rules["url_list"], html, multi=True)
+
         # 找出新增的帖子URL
         diff_urls = self._diff_urls(topic_urls)
         if not diff_urls:
             logger.info("%s no update ...", url)
             return
+
         logger.info("%s new add : %d", url, len(diff_urls))
-        topic_list = self.extract(
-            self.rules["topic_item"], html, multi=True)
+        topic_list = self.extract(self.rules["topic_item"], html, multi=True)
+
         # 获取每一页的信息
         topics = self._get_page_info(topic_list)
+
         # 过滤,找到新增的和之前的帖子
         new_topics, old_topics = self._filter_topics(topics, diff_urls)
+
         # 保存每页的信息
         self.result_page.insert(new_topics)
+
         # 更新老帖子的时间和回复数
         self._update_old_topics(old_topics)
+
         # 初始化帖子任务
         self._init_topic_tasks(diff_urls)
+
         # 更新缓存
         self._update_cache(diff_urls)
 
@@ -228,7 +238,9 @@ class DoubanSpider(DBMixin):
             now = time.time()
             topic["got_time"] = now
             topic["last_update_time"] = now
-            topics.append(topic)
+            # print('page info topic: {}'.format(topic))
+            if not self._is_intermediary(topic['author'], topic['title'], None):
+                topics.append(topic)
         return topics
 
     @staticmethod
@@ -301,13 +313,17 @@ class DoubanSpider(DBMixin):
         """
         logger.info("processing topic: %s", url)
         html = self.fetch(url)
+
         # 获取每一页的信息
         topic = self._get_detail_info(html, url)
+
         if not topic:
-            self.topic_queue.put(url)
+            # self.topic_queue.put(url)
             return
+
         topic["url"] = url
         topic["got_time"] = time.time()
+
         # 不存在 & 保存帖子的信息
         if self.result_topic.find_one({"url": url}):
             return
@@ -318,22 +334,52 @@ class DoubanSpider(DBMixin):
 
         @html, str, 页面
         """
-        if u"机器人" in html:
+        if "机器人" in html:
             logger.warn("%s 403.html", url)
             return None
+
         topic = {}
         title = self.extract(self.rules["detail_title_sm"], html) \
             or self.extract(self.rules["detail_title_lg"], html)
+
         if title is None:
             return None
+
         topic["title"] = title.strip()
-        topic["create_time"] = self.extract(
-            self.rules["create_time"], html)
-        topic["author"] = self.extract(
-            self.rules["detail_author"], html)
-        topic["content"] = '\n'.join(
-            self.extract(self.rules["content"], html, multi=True))
+
+        topic["create_time"] = self.extract(self.rules["create_time"], html)
+
+        topic["author"] = self.extract(self.rules["detail_author"], html)
+        topic["content"] = '\n'.join(self.extract(
+            self.rules["content"], html, multi=True))
+        # print('detail topic: {}'.format(topic))
+
+        if self._is_intermediary(topic['author'], topic['title'], topic['content']):
+            return None
+
         return topic
+
+    def _is_intermediary(self, author, title, content=None):
+        """根据关键词, 内容和豆瓣用户名等判断是否为中介"""
+        full_text = title
+        if content is not None:
+            if len(content) < 20 or len(content) > 520 or content == title:
+                 return True
+            if content.startswith('http'):
+                 return True
+            full_text += content
+
+        if author.startswith('豆友') or author.find('直租') != -1:
+            return True
+        exclamation_count = full_text.count('!') + full_text.count('！')
+
+        if exclamation_count >= 5:
+             return True
+
+        for kw in INTERMEDIARY_KEYWORDS:
+            if full_text.find(kw) != -1:
+                return True
+        return False
 
 
 def main():

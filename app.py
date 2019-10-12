@@ -1,6 +1,7 @@
 # coding: utf8
 
 import re
+import math
 
 from flask import Flask, request, render_template
 from dbmixin import DBMixin
@@ -19,36 +20,40 @@ def index():
     """index
     """
     cpage = int(request.form.get("cpage", 1))
-    psize = int(request.form.get("psize", 100))
+    psize = int(request.form.get("psize", 50))
     keyword = request.form.get("keyword", "")
-    is_order_update_time = int(request.form.get(
-        "is_order_update_time", 0))
+    is_order_update_time = int(request.form.get("is_order_update_time", 0))
+
     # 按更新时间排序
     if is_order_update_time:
         orderby = "last_update_time"
         collection = page_collection
-    else:
+    else: # 只有正文能获取到创建时间
         orderby = "create_time"
         collection = topic_collection
+
     where = {}
     if keyword:
         regx = re.compile(".*%s.*" % keyword, re.IGNORECASE)
         where["title"] = {"$regex": regx}
+
     # count
     count = collection.find(where).count()
+
     # page
     page = Page(cpage, psize, count)
-    # data
-    topics = collection.find(where) \
-        .sort([(orderby, -1)]).skip(page.start) \
-        .limit(page.end)
+
+    # get data from db
+    topics = collection.find(where).sort([(orderby, -1)]).skip(page.start).limit(page.end)
+    print('page: {}, {}, {}, {}, {}'.format(page.cpage, page.psize, page.count, page.begin_page, page.end_page))
     return render_template(
         "index.html",
         topics=topics,
         is_order_update_time=is_order_update_time,
         keyword=keyword,
         count=count,
-        page=page)
+        page=page
+    )
 
 
 class Page(object):
@@ -59,7 +64,7 @@ class Page(object):
         self.cpage = cpage
         self.psize = psize
         self.count = count
-        self.max_page = (count + psize - 1) / psize
+        self.max_page = int((count + psize - 1) / psize)
         self.max_page = max(self.max_page, 1)
         self.cpage = min(self.cpage, self.max_page)
 
@@ -93,8 +98,9 @@ class Page(object):
             elif end_page > max_page:
                 end_page = max_page
                 begin_page = max_page - 15
-        self.begin_page = begin_page
-        self.end_page = end_page
+
+        self.begin_page = math.floor(begin_page)
+        self.end_page = math.ceil(end_page)
 
 
 if __name__ == "__main__":

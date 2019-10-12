@@ -36,7 +36,7 @@ class ProxyManager(object):
 
     def __init__(self, proxies_or_path, interval_per_ip=0, is_single=False):
         '''
-        @proxies_or_path, basestring or list, 代理path或列表
+        @proxies_or_path, str or list, 代理path或列表
         @interval_per_ip, int, 每个ip调用最小间隔
         @is_single, bool, 是否启用单点代理,例如使用squid
         '''
@@ -49,9 +49,9 @@ class ProxyManager(object):
     def init_proxies(self, proxies_or_path):
         '''初始化代理列表
 
-        @proxies_or_path, list or basestring
+        @proxies_or_path, list or str
         '''
-        if isinstance(proxies_or_path, basestring):
+        if isinstance(proxies_or_path, str):
             if self.is_single:
                 self.proxies = proxies_or_path
             else:
@@ -63,7 +63,7 @@ class ProxyManager(object):
     def reload_proxies(self):
         '''重新加载代理，proxies_or_path必须是文件路径
         '''
-        if not isinstance(self.proxies_or_path, basestring):
+        if not isinstance(self.proxies_or_path, str):
             raise TypeError("proxies_or_path type is invalid!")
         if self.is_single:
             raise TypeError("is_single must be False!")

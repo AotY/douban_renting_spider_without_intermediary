@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>豆瓣租房搜索</title>
+        <title>豆瓣租房搜索（过滤中介）</title>
         <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css" />
     </head>
     <body>
@@ -12,7 +12,7 @@
         <script src="http://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
         <div class="container-fluid">
-            <h1>豆瓣租房搜索</h1>
+            <h1>豆瓣租房搜索（过滤中介）</h1>
             <div class="row" style="margin-left:3px;">
                 <div clss="col-md-12">
                     <form action="/" method="POST" class="form-inline">
@@ -47,7 +47,12 @@
                             <tbody>
                                 {% for item in topics %}
                                 <tr>
-                                    <td><a href="{{ item["url"]}} " target="_blank">{{ item["title"] }}</a></td>
+                                    <td>
+										<a href="{{ item["url"]}} " target="_blank">{{ item["title"] }}</a>
+										{% if item["content"] %}
+										<p> {{item["content"]}}</p>
+										{% endif %}
+									</td>
                                     {% if item["create_time"] %}
                                     <td>{{ item["create_time"] }}</td>
                                     {% else %}
