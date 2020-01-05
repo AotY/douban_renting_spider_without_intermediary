@@ -23,6 +23,7 @@ from config import (
     POOL_SIZE, RULES, MAX_PAGE, WATCH_INTERVAL, PROXY_INTERVAL,
     INTERMEDIARY_KEYWORDS
 )
+
 from utils import Timer, ProxyManager
 
 
@@ -99,13 +100,15 @@ class DoubanSpider(DBMixin):
         }
         kwargs["timeout"] = timeout
         resp = None
+        proxy = None
         for i in range(retury_num):
             try:
                 # 是否启动代理
                 if self.proxy_manager is not None:
+                    proxy = self.proxy_manager.get_proxy()
                     kwargs["proxies"] = {
-                        "https": self.proxy_manager.get_proxy(),
-                        "http": self.proxy_manager.get_proxy()
+                        "http": 'http://%s' % proxy,
+                        "https": 'https://%s' % proxy
                     }
                     # print('proxies: ', kwargs['proxies'])
                 resp = requests.get(url, **kwargs)
@@ -114,11 +117,13 @@ class DoubanSpider(DBMixin):
                 break
             except Exception as exc:
                 logger.warn("%s %d failed!\n%s", url, i, str(exc))
+                self.proxy_manager.remove(proxy)
                 time.sleep(2)
                 continue
+
         if resp is None:
             raise URLFetchError(url)
-        return resp.content.decode("utf8")
+        return resp.content.decode('utf-8')
 
     def extract(self, regx, body, multi=False):
         """解析元素,xpath语法
@@ -363,17 +368,15 @@ class DoubanSpider(DBMixin):
         """根据关键词, 内容和豆瓣用户名等判断是否为中介"""
         full_text = title
         if content is not None:
-            if len(content) < 20 or len(content) > 520 or content == title:
-                 return True
-            if content.startswith('http'):
+            if len(content) < 20 or len(content) > 500 or content == title:
                  return True
             full_text += content
 
         if author.startswith('豆友') or author.find('直租') != -1:
             return True
-        exclamation_count = full_text.count('!') + full_text.count('！')
 
-        if exclamation_count >= 5:
+        exclamation_count = full_text.count('!') + full_text.count('！')
+        if exclamation_count >= 3:
              return True
 
         for kw in INTERMEDIARY_KEYWORDS:
@@ -384,7 +387,10 @@ class DoubanSpider(DBMixin):
 
 def main():
     """ main """
-    proxy_manager = ProxyManager("./proxy_list.txt", 30)
+    proxy_manager = ProxyManager(30)
+	# download proxy list
+    logger.info('downloading proxy...')
+    proxy_manager.download_proxy_list("./proxy_list.txt")
     spider = DoubanSpider(proxy_manager)
     spider.run()
 

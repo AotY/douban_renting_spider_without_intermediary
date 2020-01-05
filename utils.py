@@ -4,6 +4,9 @@
 import time
 import logging
 import random
+import subprocess
+
+from config import PROXY_LIST_URLS
 
 
 class Timer(object):
@@ -34,17 +37,15 @@ class ProxyManager(object):
     """代理管理器
     """
 
-    def __init__(self, proxies_or_path, interval_per_ip=0, is_single=False):
+    def __init__(self, interval_per_ip=0, is_single=False):
         '''
         @proxies_or_path, str or list, 代理path或列表
         @interval_per_ip, int, 每个ip调用最小间隔
         @is_single, bool, 是否启用单点代理,例如使用squid
         '''
-        self.proxies_or_path = proxies_or_path
         self.host_time_map = {}
         self.interval = interval_per_ip
         self.is_single = is_single
-        self.init_proxies(self.proxies_or_path)
 
     def init_proxies(self, proxies_or_path):
         '''初始化代理列表
@@ -87,4 +88,28 @@ class ProxyManager(object):
             logging.info("%s waiting", proxy)
             time.sleep(self.interval)
         self.host_time_map[host] = time.time()
-        return "http://%s" % proxy.strip()
+        # return "http://%s" % proxy.strip()
+        return proxy.strip()
+
+    def remove(self, proxy):
+        print('remove proxy: ', proxy)
+        if proxy in self.proxies:
+            self.proxies.remove(proxy)
+
+    def download_proxy_list(self, proxies_or_path):
+        proxy_list_file = open(proxies_or_path, 'w', encoding='utf-8')
+        proxy_list_file.write('127.0.0.1:8787\n')
+        for i, proxy_list_url in enumerate(PROXY_LIST_URLS):
+            # download command
+            # download_command = 'wget -O temp_proxy_list_%s.txt %s' % (proxy_list_url, i)
+            subprocess.call(['wget', '-O', 'temp_proxy_list_%s.txt' % i, proxy_list_url])
+
+            with open('temp_proxy_list_%s.txt' % i, 'r', encoding='utf-8') as tmp_f:
+                for line in tmp_f:
+                    proxy_list_file.write(line)
+
+        proxy_list_file.close()
+        self.proxies_or_path = proxies_or_path
+        self.init_proxies(proxies_or_path)
+
+

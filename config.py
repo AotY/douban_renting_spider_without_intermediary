@@ -53,7 +53,7 @@ GROUP_LIST = [
 GROUP_SUFFIX = "discussion?start=%d"
 
 # 抓取前多少页
-MAX_PAGE = 7
+MAX_PAGE = 5
 
 # 匹配规则
 RULES = {
@@ -137,10 +137,37 @@ INTERMEDIARY_KEYWORDS = [
 	'我很喜欢',
 	'我喜欢',
 	'无任何中介费用',
-
+    '空中花园',
+    '零距离',
+    '小花园',
+    '仅需',
+    '温馨',
+    '24小时',
+    '24h',
+    '实拍',
+    '随你实现',
+    '分享',
+    '来吧',
+    '贵族',
+    '应有尽有',
+    '电梯房',
+    'http'
+    '精致',
+    '诗和远方',
+    '优惠多多',
+    '速度联系',
+    '梦！',
+    '温馨舒适！',
+    '仅限女生',
+    '仅限女性',
 ]
 # 豆瓣名称没有改，直接是豆友后面加一串数字的
 # 只有标题，正文不写字的
+
+PROXY_LIST_URLS = [
+    'https://raw.githubusercontent.com/a2u/free-proxy-list/master/free-proxy-list.txt',
+    'https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt'
+]
 
 # 并发数
 POOL_SIZE = 20
