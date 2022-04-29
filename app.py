@@ -1,19 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : app.py
+# Author            : Qing Tao <qingtao12138@163.com>
+# Date              : 20.03.2022
+# Last Modified Date: 27.03.2022
+# Last Modified By  : Qing Tao <qingtao12138@163.com>
 # coding: utf8
 
 import re
 import math
 
 from flask import Flask, request, render_template
-from dbmixin import DBMixin
+from db_client import DBClient
 
 app = Flask(__name__)
 app.debug = True
 
 # db & collection
-db = DBMixin().db
-topic_collection = db.result_topic
-page_collection = db.result_page
+db = DBClient().db
+# topic_collection = db.result_topic # 详情页面
+# page_collection = db.result_page # 列表页面，有最后更新时间
 
+# 这里需要给他整合一下，
+# 只保留一个collection，里面既有 create_time, 又有
+# last_replied_time
+result_collection = db.result_all
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -22,20 +33,20 @@ def index():
     cpage = int(request.form.get("cpage", 1))
     psize = int(request.form.get("psize", 50))
     keyword = request.form.get("keyword", "")
-    is_order_update_time = int(request.form.get("is_order_update_time", 0))
+    is_order_replied_time = int(request.form.get("is_order_replied_time", 0))
 
     # 按更新时间排序
-    if is_order_update_time:
-        orderby = "last_update_time"
-        collection = page_collection
-    else: # 只有正文能获取到创建时间
-        orderby = "create_time"
-        collection = topic_collection
+    collection = result_collection
+    if is_order_replied_time:
+        orderby = "last_replied_time"
+    else: # 按创建时间排序
+        orderby = "created_time"
 
     where = {}
     if keyword:
         regx = re.compile(".*%s.*" % keyword, re.IGNORECASE)
         where["title"] = {"$regex": regx}
+        where["content"] = {"$regex": regx}
 
     # count
     count = collection.find(where).count()
@@ -44,12 +55,14 @@ def index():
     page = Page(cpage, psize, count)
 
     # get data from db
-    topics = collection.find(where).sort([(orderby, -1)]).skip(page.start).limit(page.end)
-    print('page: {}, {}, {}, {}, {}'.format(page.cpage, page.psize, page.count, page.begin_page, page.end_page))
+    topics = collection.find(where).sort(
+        [(orderby, -1)]).skip(page.start).limit(page.end)
+    print('page: {}, {}, {}, {}, {}'.format(
+        page.cpage, page.psize, page.count, page.begin_page, page.end_page))
     return render_template(
         "index.html",
         topics=topics,
-        is_order_update_time=is_order_update_time,
+        is_order_replied_time=is_order_replied_time,
         keyword=keyword,
         count=count,
         page=page
