@@ -33,7 +33,8 @@ from config import (
     PROXY_INTERVAL, SLEEP_TIME, PAGE_SIZE,
     FILTERED_CONTENT_MAX_LEN, FILTERED_CONTENT_MIN_LEN,
     FILTERED_THRILL_MAX_COUNT, FILTERED_RES, JARS,
-    UPDATED_PROXIES_PATH, UPDATED_PROXIES, UPDATED_PROXY
+    UPDATED_PROXIES_PATH, UPDATED_PROXIES, UPDATED_PROXY,
+    MONEY_RE, MAX_MONEY, MIN_MONEY
 )
 
 from utils import Timer, ProxyManager
@@ -605,6 +606,15 @@ class DoubanSpider(DBClient):
         if num_thrills > FILTERED_THRILL_MAX_COUNT:
             logger.info("%s filtered by thrill count.", content)
             return True
+
+        # 金额过滤
+        money_matchs = MONEY_RE.findall(content)
+        if len(money_matchs) > 0 and len(money_matchs[0]) > 0:
+            for money_ma in money_matchs:
+                money = int(money_ma)
+                if money < MIN_MONEY or money > MAX_MONEY:
+                    logger.info("%s filtered by money range.", content)
+                    return True
 
         # 关键词过滤
         for reg in FILTERED_RES:

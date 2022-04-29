@@ -3,7 +3,7 @@
 # File              : config.py
 # Author            : Qing Tao <qingtao12138@163.com>
 # Date              : 16.03.2021
-# Last Modified Date: 28.04.2022
+# Last Modified Date: 29.04.2022
 # Last Modified By  : Qing Tao <qingtao12138@163.com>
 # coding: utf8
 
@@ -90,15 +90,15 @@ WATCH_INTERVAL = 10 * 60
 PROXY_INTERVAL = 30 * 60
 
 # 抓取前多少页
-# MAX_PAGE = 5
-MAX_PAGE = 2
+MAX_PAGE = 5
+# MAX_PAGE = 2
 
 # 每页多少条记录
 PAGE_SIZE = 25
 # PAGE_SIZE = 10
 
 # 睡眠时间
-SLEEP_TIME = 2.0
+SLEEP_TIME = 1.5
 # SLEEP_TIME = 4.0
 
 # PROXY_LIST_URLS = [
@@ -197,6 +197,9 @@ FILTERED_CONTENT_MAX_LEN = 500
 FILTERED_THRILL_MAX_COUNT = 4
 
 # 过滤正则列表
+MONEY_RE = re.compile(r"\d{4,5}")
+MAX_MONEY = 6200
+MIN_MONEY = 2900
 
 FILTERED_RES = [
     re.compile(r"求[^\s]{0,2}租|可[^\s]{0,5}短租"),
