@@ -1,10 +1,17 @@
 <!doctype html>
+<!--
+ - File              : index.html
+ - Author            : Qing Tao <qingtao12138@163.com>
+ - Date              : 20.03.2022
+ - Last Modified Date: 27.03.2022
+ - Last Modified By  : Qing Tao <qingtao12138@163.com>
+-->
 <html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>豆瓣租房搜索（过滤中介）</title>
+        <title>豆瓣租房搜索（爬取时过滤关键词）</title>
         <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css" />
     </head>
     <body>
@@ -12,7 +19,7 @@
         <script src="http://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
         <div class="container-fluid">
-            <h1>豆瓣租房搜索（过滤中介）</h1>
+            <h1>豆瓣租房搜索（爬取时过滤关键词）</h1>
             <div class="row" style="margin-left:3px;">
                 <div clss="col-md-12">
                     <form action="/" method="POST" class="form-inline">
@@ -22,12 +29,12 @@
                                 name="keyword" value="{{ keyword }}" placeholder="请输入搜索关键字" />
                         </div>
                         <div class="form-group">
-                            <label for="is_order_update_time">
+                            <label for="is_order_replied_time">
                                 排序：
                             </label>
-                            <select name="is_order_update_time" class="form-control">
-                                <option value="0" {% if is_order_update_time == 0 %} selected {% endif %}>发帖时间倒序</option>
-                                <option value="1" {% if is_order_update_time == 1 %} selected {% endif %}>更新时间倒序</option>
+                            <select name="is_order_replied_time" class="form-control">
+                                <option value="0" {% if is_order_replied_time == 0 %} selected {% endif %}>发帖时间倒序</option>
+                                <option value="1" {% if is_order_replied_time == 1 %} selected {% endif %}>更新时间倒序</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">搜索</button>
@@ -40,24 +47,20 @@
                         <table class="table table-bordered table-hover table-condensed table-striped">
                             <thead>
                                 <tr>
-                                    <th width="50%" class="info">标题</th>
-                                    <th width="20%" class="info">发表/更新时间</th>
+                                    <th width="45%" class="info">标题</th>
+                                    <th width="15%" class="info">发表时间</th>
+                                    <th width="15%" class="info">更新时间</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in topics %}
                                 <tr>
-                                    <td>
-										<a href="{{ item["url"]}} " target="_blank">{{ item["title"] }}</a>
-										{% if item["content"] %}
-										<p> {{item["content"]}}</p>
-										{% endif %}
-									</td>
-                                    {% if item["create_time"] %}
-                                    <td>{{ item["create_time"] }}</td>
-                                    {% else %}
-                                    <td>{{ item["last_reply_time"] }}</td>
-                                    {% endif %}
+                                  <td>
+                                    <a href="{{ item["url"]}} " target="_blank">{{ item["title"] }}</a>
+                                      <p> {{item["content"]}}</p>
+                                  </td>
+                                  <td>{{ item["created_time"] }}</td>
+                                  <td>{{ item["last_replied_time"] }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

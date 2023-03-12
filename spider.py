@@ -3,7 +3,7 @@
 # File              : spider.py
 # Author            : Qing Tao <qingtao12138@163.com>
 # Date              : 17.03.2021
-# Last Modified Date: 29.04.2022
+# Last Modified Date: 04.03.2023
 # Last Modified By  : Qing Tao <qingtao12138@163.com>
 # coding: utf8
 
@@ -37,7 +37,7 @@ from config import (
     MONEY_RE, MAX_MONEY, MIN_MONEY
 )
 
-from utils import Timer, ProxyManager
+from utils import Timer, ProxyManager, ProxyPoolManager
 
 """
 1. 爬取列表页面
@@ -147,13 +147,12 @@ class DoubanSpider(DBClient):
                 # 是否启动代理
                 if self.proxy_manager is not None:
                     proxy = self.proxy_manager.get_proxy()
-                    kwargs["proxies"] = {
+                    proxies = {
                         "http": 'http://%s' % proxy,
                         "https": 'http://%s' % proxy
-                        # "https": 'https://%s' % proxy
                     }
-                # resp = requests.get(url, **kwargs)
-                resp = requests.get(url, cookies=JARS[random.randint(0, 4)], **kwargs)
+                resp = requests.get(url, proxies=proxies, **kwargs)
+                # resp = requests.get(url, cookies=JARS[random.randint(0, 4)], **kwargs)
                 if resp.status_code != 200:
                     raise HTTPError(resp.status_code, url)
                 break
@@ -165,7 +164,7 @@ class DoubanSpider(DBClient):
                 continue
 
         if resp is None:
-            logger.error("cannot get a valid proxy in most case.")
+            logger.error("cannot get a invalid proxy in most case.")
             # raise URLFetchError(url)
             return None
 
@@ -209,27 +208,100 @@ class DoubanSpider(DBClient):
             all_greenlet.append(greenlet)
 
         # 生产 & 消费
-        # 帖子列表
+        # 帖子列表 任务
         all_greenlet.append(gevent.spawn(self._page_loop))
 
-        # 帖子详情
+        # 帖子详情 任务
         all_greenlet.append(gevent.spawn(self._topic_loop))
 
-        # 重载代理，10分
-        proxy_timer = Timer(PROXY_INTERVAL, PROXY_INTERVAL)
+        # 重载代理 任务
+        proxy_timer = Timer(10, PROXY_INTERVAL)
         all_greenlet.append(
-            gevent.spawn(proxy_timer.run(self.reload_proxies)))
+            # gevent.spawn(proxy_timer.run(self.update_proxies)))
+            gevent.spawn(proxy_timer.run(self.proxy_manager.reload_proxies)))
 
         gevent.joinall(all_greenlet)
 
-    def reload_proxies(self):
+
+    def update_proxies_proxy_pool(self):
+        datas = requests.get("http://127.0.0.1:5010/all/").json()
+        proxies = list()
+        for data in datas:
+            proxy = data["proxy"]
+            proxies.append(proxy)
+
+        random.shuffle(proxies)
+
+        output_file = "./data/updated_proxies.txt"
+        with open(output_file, 'w') as of:
+            for proxy in proxies:
+                of.write("%s\n" % proxy)
+
+        self.proxy_manager.reload_proxies()
+
+    def update_proxies(self):
         """重新加载代理
         """
         # 由于大量的无效代理
         # self.cache.delete_many({})
         # 重新执行拉去代理列表脚本
         # subprocess.call(['sh', './update_proxies.sh'])
-        subprocess.run("sh ./update_proxies.sh", shell=True, check=True)
+
+        # Wait for command to complete, then return a CompletedProcess instance.
+        # save proxies to ./data/raw_proxies.txt
+        status = subprocess.run(
+            "sh ./update_proxies.sh",
+            shell=True,
+            # check=True,
+            timeout=20
+        )
+        if not status or status.returncode != 0:
+            logger.error("reload proxies failed !")
+            return
+        # 测试获取到的代理，删除无效的
+        # 利用百度网站测试
+        raw_file = "./data/raw_proxies.txt"
+        output_file = "./data/updated_proxies.txt"
+        updated_proxies = list()
+        with open(raw_file) as rawf:
+            proxies = list(set([
+                p.strip().split()[0] \
+                for p in rawf.readlines() \
+                if p.strip() and len(p.strip().split(":")) == 2]))
+
+            random.shuffle(proxies)
+
+            for proxy in proxies:
+                url = "https://www.baidu.com"
+                kwargs = {
+                    "headers": {
+                        "User-Agent": USER_AGENTS[random.randint(0, len(USER_AGENTS) - 1)],
+                        "Referer": "https://www.baidu.com",
+                        "Host": "wwww.baidu.com",
+                        "timeout": "5",
+                    }
+                }
+                proxies = {
+                    "http": 'http://%s' % proxy,
+                    "https": 'http://%s' % proxy
+                }
+                try:
+                    res = requests.get(url, proxies=proxies, **kwargs)
+                except Exception as e:
+                    continue
+                if res.status_code != 200:
+                    continue
+
+                logger.info("add proxy: %s" % proxy)
+                updated_proxies.append(proxy)
+
+                if len(updated_proxies) > 3:
+                    break
+
+        with open(output_file, 'w') as of:
+            for proxy in updated_proxies:
+                of.write("%s\n" % proxy)
+
         self.proxy_manager.reload_proxies()
 
     def _init_page_tasks(self, group_url):
@@ -260,6 +332,7 @@ class DoubanSpider(DBClient):
             # block if necessary until an item is available.
             topic_url = self.topic_queue.get(block=True)
             self.pool.spawn(self._crawl_topic_detail, topic_url)
+            gevent.sleep(SLEEP_TIME)
 
     def _crawl_page(self, url):
         """爬取帖子列表
@@ -273,8 +346,8 @@ class DoubanSpider(DBClient):
             return
         body = etree.HTML(html)
         titles = self._extract(self.rules["title_list"], body, multi=True)
-        titles = [t.strip() for t in titles]
-        # first one is column names
+        titles = [t.strip().replace(" ", "") for t in titles]
+        # the first topic is column names
         topics = self._extract(self.rules["topic_item"], body, multi=True)[1:]
         assert(len(titles) == len(topics)), "titles and items are not equal in size."
         # topic_urls = self._extract(self.rules["url_list"], body, multi=True)
@@ -282,6 +355,7 @@ class DoubanSpider(DBClient):
         # logger.info("titles: {}".format(titles))
         # filtered_topics = [(titles[i], topics[i]) for i in range(len(titles)) \
         #                    if not self._filter_by_keywords(titles[i])]
+        # filter topic by title
         filtered_topics = [topics[i] for i in range(len(titles)) \
                            if not self._filter_by_keywords(titles[i])]
         logger.info("got %d topics after filtered.", len(filtered_topics))
@@ -289,32 +363,34 @@ class DoubanSpider(DBClient):
         filtered_titles, filtered_topic_urls, \
             filtered_replied_count, filtered_created_times = \
             list(), list(), list(), list()
+
         for topic in filtered_topics:
             topic_url = self._extract(self.rules["url"], topic, multi=False)
             if topic_url is None:
-                logger.error("filtered_topic has empty topic url: %s" % url)
+                logger.error("topic has empty url: %s" % url)
                 continue
             replied_count = self._extract(self.rules["replied_count"], topic, multi=False)
             if replied_count is None:
                 replied_count = 0
             else:
                 if not replied_count.isnumeric():
-                    logger.error("replied count is not numeric: %s" % replied_count)
+                    logger.error("replied count is not numeric: %s" % topic_url)
                     continue
                 replied_count = int(replied_count)
 
             created_time = self._extract(self.rules["created_time"], topic, multi=False)
             if created_time is None:
-                logger.error("filtered_topic has empty topic created_time: %s" % url)
+                logger.error("filtered_topic has empty topic created_time: %s" % topic_url)
                 continue
+            # 默认假设假设当前年份
             created_time = str(datetime.now().year) + "-" + created_time
 
             title = self._extract(self.rules["title"], topic, multi=False)
             if title is None:
-                logger.error("filtered_topic has empty topic title: %s" % url)
+                logger.error("topic has empty title: %s" % topic_url)
                 continue
 
-            logger.info("url: %s, replied_count: %d, created_time: %s, title: %s", \
+            logger.info("Add topic_url: %s, replied_count: %d, created_time: %s, title: %s", \
                         topic_url, replied_count, created_time, title)
 
             # 添加到过滤后的列表
@@ -356,7 +432,7 @@ class DoubanSpider(DBClient):
 
         self._init_topic_tasks(updated_urls)
 
-        # 将更新的列表也加入到数据库
+        # 将更新的列表信息也加入到数据库
         self._update_topics(updated_topics)
 
         # 更新缓存
@@ -428,7 +504,7 @@ class DoubanSpider(DBClient):
         updated_topics = [
             (url, count, ct, title) for (url, count, ct, title) in \
             zip(topic_urls, replied_counts, created_times, titles) \
-            if url not in cached_dict or count != cached_dict[url]
+            if url not in cached_dict or count > cached_dict[url]
         ]
         logger.info("updated topic size: %d" % len(updated_topics))
         return updated_topics
@@ -523,11 +599,14 @@ class DoubanSpider(DBClient):
         logger.info("processing topic: %s", url)
         html = self._fetech(url)
         if html is None:
+            # 如果某处排除失败了，比如代理问题，重新加入队列
             self.topic_queue.put(url)
             return
+
         body = etree.HTML(html)
         if body is None:
             logger.error("got empty body: %s" % url)
+            self.topic_queue.put(url)
             return
 
         # 获取每一页的信息
@@ -570,8 +649,14 @@ class DoubanSpider(DBClient):
             logger.error("got empty title or author or created_time: %s" % url)
             return None
 
+        title = title.strip().replace(" ", "")
+        author = author.strip().replace(" ", "")
+        created_time = created_time.strip().replace(" ", "")
+
         content = self._extract(self.rules["content"], body, multi=True)
-        content = ' '.join([c.strip() for c in content])
+        content = '\n'.join([c.strip() for c in content])
+
+        # 根据正文内容过滤
         if self._filter_by_keywords(content):
             return None
 
@@ -596,6 +681,7 @@ class DoubanSpider(DBClient):
             return True
 
         # is_filtered = False
+        # 文本长度
         content_len = len(content)
         if content_len < FILTERED_CONTENT_MIN_LEN or content_len > FILTERED_CONTENT_MAX_LEN:
             logger.info("%s filtered by length.", content)
@@ -609,8 +695,10 @@ class DoubanSpider(DBClient):
 
         # 金额过滤
         money_matchs = MONEY_RE.findall(content)
-        if len(money_matchs) > 0 and len(money_matchs[0]) > 0:
+        if len(money_matchs) > 0:
             for money_ma in money_matchs:
+                if len(money_ma) != 4:
+                    continue
                 money = int(money_ma)
                 if money < MIN_MONEY or money > MAX_MONEY:
                     logger.info("%s filtered by money range.", content)
@@ -651,14 +739,22 @@ def main():
     # proxy_manager = ProxyManager(interval_per_ip=30, is_single=True)
     # is_init_success = proxy_manager.init_proxies(UPDATED_PROXY)
 
-    proxy_manager = ProxyManager(interval_per_ip=30, is_single=False)
-    is_init_success = proxy_manager.init_proxies(UPDATED_PROXIES_PATH)
+    # TODO
+    # # is_init_success = proxy_manager.init_proxies(UPDATED_PROXIES)
+    # if not is_init_success:
+    #     logger.error("Init proxies failed, got a invalid proxies, please re-running `sh ./update_proxies.sh`.")
+    #     # logger.error("Init proxies failed, got a invalid proxies.")
+    #     exit(0)
+    # proxy_manager = ProxyManager(
+    #     interval_per_ip=10,
+    #     is_single=False,
+    #     proxies_or_path=UPDATED_PROXIES_PATH)
+    # spider.update_proxies()
+    # spider.update_proxies_proxy_pool()
+    # proxy_manager.reload_proxies()
 
-    # is_init_success = proxy_manager.init_proxies(UPDATED_PROXIES)
-    if not is_init_success:
-        logger.error("Init proxies failed, got a invalid proxies, please running `sh ./update_proxies.sh`.")
-        # logger.error("Init proxies failed, got a invalid proxies.")
-        exit(0)
+    proxy_manager = ProxyPoolManager()
+    proxy_manager.reload_proxies()
     spider = DoubanSpider(proxy_manager)
     spider.run()
 

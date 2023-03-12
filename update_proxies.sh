@@ -7,11 +7,10 @@
 # Last Modified By  : Qing Tao <qingtao12138@163.com>
 # coding: utf8
 
-
 export http_proxy="127.0.0.1:4780";
 export https_proxy="127.0.0.1:4780";
 
-declare -a proxies=("https://cdn.jsdelivr.net/gh/mmpx12/proxy-list@master/https.txt" "https://cdn.jsdelivr.net/gh/clarketm/proxy-list@master/proxy-list-raw.txt" "https://cdn.jsdelivr.net/gh/clarketm/proxy-list@master/proxy-list-raw.txt" "https://cdn.jsdelivr.net/gh/TheSpeedX/PROXY-List@master/http.txt" "https://cdn.jsdelivr.net/gh/ShiftyTR/Proxy-List@master/proxy.txt" "https://cdn.jsdelivr.net/gh/hookzof/socks5_list@master/proxy.txt")
+declare -a proxies=("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt" "https://raw.githubusercontent.com/mertguvencli/http-proxy-list/main/proxy-list/data.txt")
 
 echo "127.0.0.1:4780" > ./data/tmp_local.txt
 for proxy in "${proxies[@]}"
@@ -20,12 +19,14 @@ do
   tmp_name=$(echo $proxy | awk -F "/" '{print $5;}');
   echo "$tmp_name"
   # wget -c $proxy -O ./data/tmp_${tmp_name}.txt;
-  wget -O ./data/tmp_${tmp_name}.txt $proxy
+  wget -O ./data/tmp_${tmp_name}.txt $proxy --timeout=5 -o ./data/wget_tmp_${tmp_name}.log
 done
 
-rm -rf ./data/updated_proxies.txt
+echo "" > ./data/raw_proxies.txt
+less ./data/tmp_*.txt > ./data/raw_proxies.txt
 
-less ./data/tmp_*.txt > ./data/updated_proxies.txt
+rm -rf ./data/tmp_*.txt
+rm -rf ./data/wget-log*
 
 export http_proxy=""; 
 export https_proxy="";

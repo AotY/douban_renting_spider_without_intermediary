@@ -1,0 +1,138 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/d080788/
+DBClient	db_client.py	/^class DBClient(object):$/;"	kind:c	line:22	inherits:object	access:public
+DBClient._client	db_client.py	/^    _client = None$/;"	kind:v	line:26	class:DBClient	access:protected
+DBClient.client	db_client.py	/^    def client(self):$/;"	kind:m	line:29	class:DBClient	access:public	signature:(self)
+DBClient.db	db_client.py	/^    def db(self):$/;"	kind:m	line:43	class:DBClient	access:public	signature:(self)
+DB_NAME	config.py	/^DB_NAME = "douban_group"$/;"	kind:v	line:79	access:public
+DB_TLS_CA_FILE	config.py	/^DB_TLS_CA_FILE = "\/Users\/LeonTao\/mongodb-macos-x86_64-4.2.12\/ssl\/ca.pem"$/;"	kind:v	line:80	access:public
+DB_TLS_CERTIFICATE_KEY_FILE	config.py	/^DB_TLS_CERTIFICATE_KEY_FILE = "\/Users\/LeonTao\/mongodb-macos-x86_64-4.2.12\/ssl\/client.pem"$/;"	kind:v	line:81	access:public
+DB_URI	config.py	/^DB_URI = "mongodb:\/\/localhost:27017"$/;"	kind:v	line:77	access:public
+DoubanSpider	spider.py	/^class DoubanSpider(DBClient):$/;"	kind:c	line:94	inherits:DBClient	access:public
+DoubanSpider.__init__	spider.py	/^    def __init__(self, proxy_manager=None):$/;"	kind:m	line:98	class:DoubanSpider	access:public	signature:(self, proxy_manager=None)
+DoubanSpider._crawl_page	spider.py	/^    def _crawl_page(self, url):$/;"	kind:m	line:337	class:DoubanSpider	access:protected	signature:(self, url)
+DoubanSpider._crawl_topic_detail	spider.py	/^    def _crawl_topic_detail(self, url):$/;"	kind:m	line:594	class:DoubanSpider	access:protected	signature:(self, url)
+DoubanSpider._diff_topics	spider.py	/^    def _diff_topics(self,$/;"	kind:m	line:481	class:DoubanSpider	access:protected	signature:(self, topic_urls, replied_counts, created_times, titles)
+DoubanSpider._diff_urls	spider.py	/^    def _diff_urls(self, topic_urls):$/;"	kind:m	line:512	class:DoubanSpider	access:protected	signature:(self, topic_urls)
+DoubanSpider._extract	spider.py	/^    def _extract(self, regx, body, multi=False):$/;"	kind:m	line:174	class:DoubanSpider	access:protected	signature:(self, regx, body, multi=False)
+DoubanSpider._fetech	spider.py	/^    def _fetech(self, url, timeout=10, retury_num=10):$/;"	kind:m	line:128	class:DoubanSpider	access:protected	signature:(self, url, timeout=10, retury_num=10)
+DoubanSpider._filter_by_keywords	spider.py	/^    def _filter_by_keywords(self, content):$/;"	kind:m	line:676	class:DoubanSpider	access:protected	signature:(self, content)
+DoubanSpider._filter_topics	spider.py	/^    def _filter_topics(topics, updated_urls):$/;"	kind:m	line:467	class:DoubanSpider	access:protected	signature:(topics, updated_urls)
+DoubanSpider._get_topic_info	spider.py	/^    def _get_topic_info(self, body, url):$/;"	kind:m	line:633	class:DoubanSpider	access:protected	signature:(self, body, url)
+DoubanSpider._init_page_tasks	spider.py	/^    def _init_page_tasks(self, group_url):$/;"	kind:m	line:307	class:DoubanSpider	access:protected	signature:(self, group_url)
+DoubanSpider._init_topic_tasks	spider.py	/^    def _init_topic_tasks(self, topic_urls):$/;"	kind:m	line:546	class:DoubanSpider	access:protected	signature:(self, topic_urls)
+DoubanSpider._page_loop	spider.py	/^    def _page_loop(self):$/;"	kind:m	line:318	class:DoubanSpider	access:protected	signature:(self)
+DoubanSpider._topic_loop	spider.py	/^    def _topic_loop(self):$/;"	kind:m	line:327	class:DoubanSpider	access:protected	signature:(self)
+DoubanSpider._update_cache	spider.py	/^    def _update_cache(self, updated_urls):$/;"	kind:m	line:574	class:DoubanSpider	access:protected	signature:(self, updated_urls)
+DoubanSpider._update_topics	spider.py	/^    def _update_topics(self, updated_topics):$/;"	kind:m	line:554	class:DoubanSpider	access:protected	signature:(self, updated_topics)
+DoubanSpider.run	spider.py	/^    def run(self):$/;"	kind:m	line:197	class:DoubanSpider	access:public	signature:(self)
+DoubanSpider.update_proxies	spider.py	/^    def update_proxies(self):$/;"	kind:m	line:242	class:DoubanSpider	access:public	signature:(self)
+DoubanSpider.update_proxies_proxy_pool	spider.py	/^    def update_proxies_proxy_pool(self):$/;"	kind:m	line:226	class:DoubanSpider	access:public	signature:(self)
+FILTERED_CONTENT_MAX_LEN	config.py	/^FILTERED_CONTENT_MAX_LEN = 500$/;"	kind:v	line:200	access:public
+FILTERED_CONTENT_MIN_LEN	config.py	/^FILTERED_CONTENT_MIN_LEN = 5$/;"	kind:v	line:199	access:public
+FILTERED_RES	config.py	/^FILTERED_RES = [$/;"	kind:v	line:210	access:public
+FILTERED_THRILL_MAX_COUNT	config.py	/^FILTERED_THRILL_MAX_COUNT = 4$/;"	kind:v	line:202	access:public
+GROUP_LIST	config.py	/^GROUP_LIST = [$/;"	kind:v	line:120	access:public
+GROUP_SUFFIX	config.py	/^GROUP_SUFFIX = "discussion?start=%d"$/;"	kind:v	line:117	access:public
+HTTPError	spider.py	/^class HTTPError(Exception):$/;"	kind:c	line:71	inherits:Exception	access:public
+HTTPError.__init__	spider.py	/^    def __init__(self, status_code, url):$/;"	kind:m	line:75	class:HTTPError	access:public	signature:(self, status_code, url)
+HTTPError.__str__	spider.py	/^    def __str__(self):$/;"	kind:m	line:79	class:HTTPError	access:public	signature:(self)
+JARS	config.py	/^JARS = [jar, jar2, jar3, jar4, jar5]$/;"	kind:v	line:73	access:public
+MAX_MONEY	config.py	/^MAX_MONEY = 5300$/;"	kind:v	line:206	access:public
+MAX_PAGE	config.py	/^MAX_PAGE = 3$/;"	kind:v	line:95	access:public
+MIN_MONEY	config.py	/^MIN_MONEY = 2700$/;"	kind:v	line:207	access:public
+MONEY_RE	config.py	/^MONEY_RE = re.compile(r"\\d{4,11}")$/;"	kind:v	line:205	access:public
+PAGE_SIZE	config.py	/^PAGE_SIZE = 25$/;"	kind:v	line:99	access:public
+POOL_SIZE	config.py	/^POOL_SIZE = 2$/;"	kind:v	line:85	access:public
+PROXY_INTERVAL	config.py	/^PROXY_INTERVAL = 2 * 60$/;"	kind:v	line:92	access:public
+Page	app.py	/^class Page(object):$/;"	kind:c	line:72	inherits:object	access:public
+Page.__init__	app.py	/^    def __init__(self, cpage, psize, count):$/;"	kind:m	line:76	class:Page	access:public	signature:(self, cpage, psize, count)
+Page.init_page_num	app.py	/^    def init_page_num(self, cpage, max_page):$/;"	kind:m	line:91	class:Page	access:public	signature:(self, cpage, max_page)
+ProxyManager	utils.py	/^class ProxyManager(object):$/;"	kind:c	line:48	inherits:object	access:public
+ProxyManager.__init__	utils.py	/^    def __init__($/;"	kind:m	line:52	class:ProxyManager	access:public	signature:( self, interval_per_ip=0, is_single=False, proxies_or_path=None )
+ProxyManager.get_proxy	utils.py	/^    def get_proxy(self):$/;"	kind:m	line:107	class:ProxyManager	access:public	signature:(self)
+ProxyManager.reload_proxies	utils.py	/^    def reload_proxies(self):$/;"	kind:m	line:90	class:ProxyManager	access:public	signature:(self)
+ProxyManager.remove	utils.py	/^    def remove(self, proxy):$/;"	kind:m	line:128	class:ProxyManager	access:public	signature:(self, proxy)
+ProxyPoolManager	utils.py	/^class ProxyPoolManager(object):$/;"	kind:c	line:161	inherits:object	access:public
+ProxyPoolManager.__init__	utils.py	/^    def __init__($/;"	kind:m	line:167	class:ProxyPoolManager	access:public	signature:( self, interval_per_ip=10 )
+ProxyPoolManager.get_proxy	utils.py	/^    def get_proxy(self):$/;"	kind:m	line:192	class:ProxyPoolManager	access:public	signature:(self)
+ProxyPoolManager.reload_proxies	utils.py	/^    def reload_proxies(self):$/;"	kind:m	line:177	class:ProxyPoolManager	access:public	signature:(self)
+ProxyPoolManager.remove	utils.py	/^    def remove(self, proxy):$/;"	kind:m	line:210	class:ProxyPoolManager	access:public	signature:(self, proxy)
+RULES	config.py	/^RULES = {$/;"	kind:v	line:164	access:public
+SLEEP_TIME	config.py	/^SLEEP_TIME = 2.5$/;"	kind:v	line:104	access:public
+Timer	utils.py	/^class Timer(object):$/;"	kind:c	line:22	inherits:object	access:public
+Timer.__init__	utils.py	/^    def __init__(self, start, interval):$/;"	kind:m	line:27	class:Timer	access:public	signature:(self, start, interval)
+Timer.run	utils.py	/^    def run(self, func, *args, **kwargs):$/;"	kind:m	line:35	class:Timer	access:public	signature:(self, func, *args, **kwargs)
+UPDATED_PROXIES	config.py	/^UPDATED_PROXIES = [$/;"	kind:v	line:113	access:public
+UPDATED_PROXIES_PATH	config.py	/^UPDATED_PROXIES_PATH = ".\/data\/updated_proxies.txt"$/;"	kind:v	line:112	access:public
+UPDATED_PROXY	config.py	/^UPDATED_PROXY = "127.0.0.1:4780"$/;"	kind:v	line:111	access:public
+URLFetchError	spider.py	/^class URLFetchError(Exception):$/;"	kind:c	line:83	inherits:Exception	access:public
+URLFetchError.__init__	spider.py	/^    def __init__(self, url):$/;"	kind:m	line:87	class:URLFetchError	access:public	signature:(self, url)
+URLFetchError.__str__	spider.py	/^    def __str__(self):$/;"	kind:m	line:90	class:URLFetchError	access:public	signature:(self)
+USER_AGENTS	config.py	/^USER_AGENTS = [$/;"	kind:v	line:17	access:public
+WATCH_INTERVAL	config.py	/^WATCH_INTERVAL = 10 * 60$/;"	kind:v	line:89	access:public
+__init__	app.py	/^    def __init__(self, cpage, psize, count):$/;"	kind:m	line:76	class:Page	access:public	signature:(self, cpage, psize, count)
+__init__	spider.py	/^    def __init__(self, proxy_manager=None):$/;"	kind:m	line:98	class:DoubanSpider	access:public	signature:(self, proxy_manager=None)
+__init__	spider.py	/^    def __init__(self, status_code, url):$/;"	kind:m	line:75	class:HTTPError	access:public	signature:(self, status_code, url)
+__init__	spider.py	/^    def __init__(self, url):$/;"	kind:m	line:87	class:URLFetchError	access:public	signature:(self, url)
+__init__	utils.py	/^    def __init__($/;"	kind:m	line:167	class:ProxyPoolManager	access:public	signature:( self, interval_per_ip=10 )
+__init__	utils.py	/^    def __init__($/;"	kind:m	line:52	class:ProxyManager	access:public	signature:( self, interval_per_ip=0, is_single=False, proxies_or_path=None )
+__init__	utils.py	/^    def __init__(self, start, interval):$/;"	kind:m	line:27	class:Timer	access:public	signature:(self, start, interval)
+__str__	spider.py	/^    def __str__(self):$/;"	kind:m	line:79	class:HTTPError	access:public	signature:(self)
+__str__	spider.py	/^    def __str__(self):$/;"	kind:m	line:90	class:URLFetchError	access:public	signature:(self)
+_client	db_client.py	/^    _client = None$/;"	kind:v	line:26	class:DBClient	access:protected
+_crawl_page	spider.py	/^    def _crawl_page(self, url):$/;"	kind:m	line:337	class:DoubanSpider	access:protected	signature:(self, url)
+_crawl_topic_detail	spider.py	/^    def _crawl_topic_detail(self, url):$/;"	kind:m	line:594	class:DoubanSpider	access:protected	signature:(self, url)
+_diff_topics	spider.py	/^    def _diff_topics(self,$/;"	kind:m	line:481	class:DoubanSpider	access:protected	signature:(self, topic_urls, replied_counts, created_times, titles)
+_diff_urls	spider.py	/^    def _diff_urls(self, topic_urls):$/;"	kind:m	line:512	class:DoubanSpider	access:protected	signature:(self, topic_urls)
+_extract	spider.py	/^    def _extract(self, regx, body, multi=False):$/;"	kind:m	line:174	class:DoubanSpider	access:protected	signature:(self, regx, body, multi=False)
+_fetech	spider.py	/^    def _fetech(self, url, timeout=10, retury_num=10):$/;"	kind:m	line:128	class:DoubanSpider	access:protected	signature:(self, url, timeout=10, retury_num=10)
+_filter_by_keywords	spider.py	/^    def _filter_by_keywords(self, content):$/;"	kind:m	line:676	class:DoubanSpider	access:protected	signature:(self, content)
+_filter_topics	spider.py	/^    def _filter_topics(topics, updated_urls):$/;"	kind:m	line:467	class:DoubanSpider	access:protected	signature:(topics, updated_urls)
+_get_topic_info	spider.py	/^    def _get_topic_info(self, body, url):$/;"	kind:m	line:633	class:DoubanSpider	access:protected	signature:(self, body, url)
+_init_page_tasks	spider.py	/^    def _init_page_tasks(self, group_url):$/;"	kind:m	line:307	class:DoubanSpider	access:protected	signature:(self, group_url)
+_init_topic_tasks	spider.py	/^    def _init_topic_tasks(self, topic_urls):$/;"	kind:m	line:546	class:DoubanSpider	access:protected	signature:(self, topic_urls)
+_page_loop	spider.py	/^    def _page_loop(self):$/;"	kind:m	line:318	class:DoubanSpider	access:protected	signature:(self)
+_topic_loop	spider.py	/^    def _topic_loop(self):$/;"	kind:m	line:327	class:DoubanSpider	access:protected	signature:(self)
+_update_cache	spider.py	/^    def _update_cache(self, updated_urls):$/;"	kind:m	line:574	class:DoubanSpider	access:protected	signature:(self, updated_urls)
+_update_topics	spider.py	/^    def _update_topics(self, updated_topics):$/;"	kind:m	line:554	class:DoubanSpider	access:protected	signature:(self, updated_topics)
+app	app.py	/^app = Flask(__name__)$/;"	kind:v	line:16	access:public
+client	db_client.py	/^    def client(self):$/;"	kind:m	line:29	class:DBClient	access:public	signature:(self)
+cursor	db_client.py	/^    cursor = db_client.db.test.find() # test$/;"	kind:v	line:51	access:public
+db	app.py	/^db = DBClient().db$/;"	kind:v	line:20	access:public
+db	db_client.py	/^    def db(self):$/;"	kind:m	line:43	class:DBClient	access:public	signature:(self)
+db_client	db_client.py	/^    db_client = DBClient()$/;"	kind:v	line:49	access:public
+get_logger	spider.py	/^def get_logger(name):$/;"	kind:f	line:55	access:public	signature:(name)
+get_proxy	utils.py	/^    def get_proxy(self):$/;"	kind:m	line:107	class:ProxyManager	access:public	signature:(self)
+get_proxy	utils.py	/^    def get_proxy(self):$/;"	kind:m	line:192	class:ProxyPoolManager	access:public	signature:(self)
+index	app.py	/^def index():$/;"	kind:f	line:30	access:public	signature:()
+init_page_num	app.py	/^    def init_page_num(self, cpage, max_page):$/;"	kind:m	line:91	class:Page	access:public	signature:(self, cpage, max_page)
+jar	config.py	/^jar = RequestsCookieJar()$/;"	kind:v	line:47	access:public
+jar2	config.py	/^jar2 = jar.copy()$/;"	kind:v	line:59	access:public
+jar3	config.py	/^jar3 = jar.copy()$/;"	kind:v	line:62	access:public
+jar4	config.py	/^jar4 = jar.copy()$/;"	kind:v	line:66	access:public
+jar5	config.py	/^jar5 = jar.copy()$/;"	kind:v	line:69	access:public
+logger	spider.py	/^logger = get_logger("douban_spider")$/;"	kind:v	line:68	access:public
+main	spider.py	/^def main():$/;"	kind:f	line:738	access:public	signature:()
+project_opened	.ropeproject/config.py	/^def project_opened(project):$/;"	kind:f	line:112	access:public	signature:(project)
+reload_proxies	utils.py	/^    def reload_proxies(self):$/;"	kind:m	line:177	class:ProxyPoolManager	access:public	signature:(self)
+reload_proxies	utils.py	/^    def reload_proxies(self):$/;"	kind:m	line:90	class:ProxyManager	access:public	signature:(self)
+remove	utils.py	/^    def remove(self, proxy):$/;"	kind:m	line:128	class:ProxyManager	access:public	signature:(self, proxy)
+remove	utils.py	/^    def remove(self, proxy):$/;"	kind:m	line:210	class:ProxyPoolManager	access:public	signature:(self, proxy)
+result_collection	app.py	/^result_collection = db.result_all$/;"	kind:v	line:27	access:public
+run	spider.py	/^    def run(self):$/;"	kind:m	line:197	class:DoubanSpider	access:public	signature:(self)
+run	utils.py	/^    def run(self, func, *args, **kwargs):$/;"	kind:m	line:35	class:Timer	access:public	signature:(self, func, *args, **kwargs)
+set_prefs	.ropeproject/config.py	/^def set_prefs(prefs):$/;"	kind:f	line:5	access:public	signature:(prefs)
+update_proxies	spider.py	/^    def update_proxies(self):$/;"	kind:m	line:242	class:DoubanSpider	access:public	signature:(self)
+update_proxies_proxy_pool	spider.py	/^    def update_proxies_proxy_pool(self):$/;"	kind:m	line:226	class:DoubanSpider	access:public	signature:(self)
+使用	README.md	/^# 使用$/;"	kind:c	line:42
+依赖	README.md	/^# 依赖$/;"	kind:c	line:20
+特别说明	README.md	/^# 特别说明$/;"	kind:c	line:30
+说明	README.md	/^# 说明$/;"	kind:c	line:8
+豆瓣租房搜索（爬取时过滤关键词）	templates/index.html	/^            <h1>豆瓣租房搜索（爬取时过滤关键词）<\/h1>$/;"	kind:h	line:22
+配置	README.md	/^# 配置$/;"	kind:c	line:62

@@ -3,7 +3,7 @@
 # File              : utils.py
 # Author            : Qing Tao <qingtao12138@163.com>
 # Date              : 15.03.2021
-# Last Modified Date: 20.04.2022
+# Last Modified Date: 01.03.2023
 # Last Modified By  : Qing Tao <qingtao12138@163.com>
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -13,6 +13,7 @@ import time
 import logging
 import random
 import subprocess
+import requests
 import re
 
 # from config import PROXY_LIST_URLS
@@ -48,62 +49,72 @@ class ProxyManager(object):
     """代理管理器
     """
 
-    def __init__(self, interval_per_ip=0, is_single=False):
+    def __init__(
+        self,
+        interval_per_ip=0,
+        is_single=False,
+        proxies_or_path=None
+    ):
         '''
         @interval_per_ip, int, 每个ip调用最小间隔, s
         @is_single, bool, 是否启用单点代理,例如使用 squid
+        @proxies_or_path, str, 代理文件路径
         '''
         self.host_time_map = {}
         self.interval = interval_per_ip
         self.is_single = is_single
-
-    def init_proxies(self, proxies_or_path):
-        '''初始化代理列表
-        @proxies_or_path, str or list, 代理path或列表
-        @proxies_or_path, list or str
-        '''
         self.proxies_or_path = proxies_or_path
-        if isinstance(proxies_or_path, str):
-            if self.is_single:
-                if not proxies_or_path:
-                    return False
-                self.proxies = proxies_or_path
-            else:
-                if not os.path.exists(proxies_or_path):
-                    return False
-                with open(proxies_or_path) as f:
-                    self.proxies = list(
-                        set([p.strip().split()[0] for p in f.readlines() if p.strip()]))
-        else:
-            self.proxies = proxies_or_path
 
-        if isinstance(self.proxies, list) and len(self.proxies) == 0:
-            return False
+    # def init_proxies(self, ):
+    #     '''初始化代理列表
+    #     '''
+    #     if isinstance(proxies_or_path, str):
+    #         if self.is_single:
+    #             if not proxies_or_path:
+    #                 return False
+    #             self.proxies = proxies_or_path
+    #         else:
+    #             if not os.path.exists(proxies_or_path):
+    #                 return False
+    #             with open(proxies_or_path) as f:
+    #                 self.proxies = list(set(
+    #                     [p.strip().split()[0] for p in f.readlines() if p.strip()]))
+    #     else:
+    #         self.proxies = proxies_or_path
 
-        return True
+    #     if isinstance(self.proxies, list) and len(self.proxies) == 0:
+    #         return False
+
+    #     return True
 
     def reload_proxies(self):
         '''重新加载代理，proxies_or_path必须是文件路径 '''
         if not isinstance(self.proxies_or_path, str):
             raise TypeError("proxies_or_path type is invalid!")
+
         if self.is_single:
             raise TypeError("is_single must be False!")
+
+        # 还是重新加载代理文件
         with open(self.proxies_or_path) as f:
             # self.proxies = f.readlines()
             # self.proxies = [p.strip().split()[0] for p in f.readlines()]
-            self.proxies = list(
-                set([p.strip().split()[0] for p in f.readlines() if p.strip()]))
+            self.proxies = list(set(
+                [p.strip().split()[0] for p in f.readlines() if p.strip()]))
+
         logging.info("reload %s proxies ...", len(self.proxies))
 
     def get_proxy(self):
         '''获取一个可用代理
 
-        如果代理使用过于频繁会阻塞，以防止服务器屏蔽
+        如果某个代理使用过于频繁会阻塞，以防止服务器屏蔽
         '''
         # 如果使用单点代理,直接返回
         if self.is_single:
             return self.proxies
+
         proxy = self.proxies[random.randint(0, len(self.proxies) - 1)].strip()
+        proxy = proxy.strip().replace("" , "")
         host, _ = proxy.split(':')
         latest_time = self.host_time_map.get(host, 0)
         interval = time.time() - latest_time
@@ -112,7 +123,7 @@ class ProxyManager(object):
             time.sleep(self.interval)
         self.host_time_map[host] = time.time()
         # return "http://%s" % proxy.strip()
-        return proxy.strip()
+        return proxy
 
     def remove(self, proxy):
         print('remove proxy: ', proxy)
@@ -144,4 +155,68 @@ class ProxyManager(object):
     #     proxy_list_file.close()
     #     self.proxies_or_path = proxies_or_path
     #     self.init_proxies(proxies_or_path)
+
+
+
+class ProxyPoolManager(object):
+    """
+    代理池管理器
+        using https://github.com/jhao104/proxy_pool/blob/master/README.md
+    """
+
+    def __init__(
+        self,
+        interval_per_ip=10
+    ):
+        '''
+        @interval_per_ip, int, 每个ip调用最小间隔, s
+        '''
+        self.host_time_map = {}
+        self.interval = interval_per_ip
+
+    def reload_proxies(self):
+        '''
+        重新加载代理
+        '''
+        datas = requests.get("http://127.0.0.1:5010/all/").json()
+        proxies = list()
+        for data in datas:
+            proxy = data["proxy"]
+            proxies.append(proxy)
+
+        proxies.append("127.0.0.1:4780")
+        random.shuffle(proxies)
+        self.proxies = proxies
+        logging.info("reload %s proxies ...", len(self.proxies))
+
+    def get_proxy(self):
+        '''获取一个可用代理
+
+        如果某个代理使用过于频繁会阻塞，以防止服务器屏蔽
+        '''
+        # 如果使用单点代理,直接返回
+        proxy = self.proxies[random.randint(0, len(self.proxies) - 1)].strip()
+        proxy = proxy.strip().replace(" " , "")
+        host, port = proxy.split(':')
+        latest_time = self.host_time_map.get(host, 0)
+        interval = time.time() - latest_time
+        if interval < self.interval:
+            logging.info("%s waiting", proxy)
+            time.sleep(self.interval)
+
+        self.host_time_map[host] = time.time()
+        return proxy
+
+    def remove(self, proxy):
+        print('remove proxy: ', proxy)
+        if len(self.proxies) == 0:
+            # print("exit! has no more proxy.")
+            # exit(0)
+            print("waiting! no more proxy in pool.")
+            time.sleep(10)
+            return
+        if proxy in self.proxies:
+            self.proxies.remove(proxy)
+            # remove from proxy pool
+            requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
 

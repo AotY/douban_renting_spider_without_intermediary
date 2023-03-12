@@ -1,10 +1,21 @@
+```
+ File              : README.md
+ Author            : Qing Tao <qingtao12138@163.com>
+ Date              : 20.03.2022
+ Last Modified Date: 20.03.2022
+ Last Modified By  : Qing Tao <qingtao12138@163.com>
+```
 # 说明
-用于爬取`豆瓣住房小组`信息，同时过滤中介。<br/>
+用于爬取`豆瓣住房小组`信息，同时过滤一些关键词（一般都是中介喜欢用的一些关键词，如'拎包入住'等）。<br/>
 该项目Fork自https://github.com/kaito-kidd/douban-group-spider ，修改或添加了几个地方：
-- 添加了通过关键词筛选去除中介帖子的功能
+
+- 添加了通过关键词筛选去除帖子的功能
 - 修改了正文页面content的xpath路径
 - 修改了App.py中begin_page和end_page存在float类型问题
 - 更新了requirements.txt
+
+***** update
+- 将帖子的创建时间和更新信息进行分开展示，提升体验
 
 # 依赖
 - `gevent`
@@ -25,19 +36,27 @@
 	- https://github.com/clarketm/proxy-list
 	- https://github.com/a2u/free-proxy-list
 
+** update
+先执行`craw_proxy.sh`脚本
+
 # 使用
 - 安装`MongoDB`，具体参考安装文档。
-- 建议使用`virtualenv`环境<br/>
+
+- 启动MongoDB
+	`mongo douban_group`
+
+- 建议使用`virtualenv`环境或者conda环境
 	`virtualenv douban_group`
 	`source douban-group/bin/activate`
     `pip install -r requirements.txt`
-- 启动MongoDB
-	`mongo douban_group`
-- 启动爬虫<br/>
+
+- 启动爬虫
     `nohup python spider.py >> douban_spider.log &`
-- 启动web服务<br/>
+
+- 启动web服务
     `nohup python app.py >> app.log &`
-- 查看页面<br/>
+
+- 查看页面
     `http://localhost:5000`
 
 # 配置
